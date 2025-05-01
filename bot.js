@@ -76,9 +76,15 @@ app.post('/run-order', async (req, res) => {
     return res.status(500).json({ error: 'Missing credit card env vars' });
   }
 
+  // הגדרת פרוקסי מה-ENV (או קשיח)
+  const PROXY_SERVER = process.env.PLAYWRIGHT_PROXY; // דוג' "http://user:pass@proxyhost:port" או "socks5://host:port"
+
   let browser;
   try {
-    browser = await chromium.launch({ headless: true });
+    browser = await chromium.launch({
+      headless: true,
+      proxy: PROXY_SERVER ? { server: PROXY_SERVER } : undefined
+    });
     const context = await browser.newContext();
     const page = await context.newPage();
 
