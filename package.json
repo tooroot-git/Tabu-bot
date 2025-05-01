@@ -4,7 +4,7 @@
   "description": "Tabu Israel Automation Bot",
   "main": "bot.js",
   "scripts": {
-    "start": "node ./bot.js"
+    "start": "node bot.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.38.0",
