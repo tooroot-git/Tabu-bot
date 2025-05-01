@@ -88,9 +88,10 @@ app.post('/run-order', async (req, res) => {
         '--disable-blink-features=AutomationControlled'
       ]
     });
+
     const context = await browser.newContext({
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-      ignoreHTTPSErrors: true // כמו -k ב-curl
+      ignoreHTTPSErrors: true
     });
     const page = await context.newPage();
 
@@ -125,7 +126,6 @@ app.post('/run-order', async (req, res) => {
 
     await logStep('Click שם', () => safeClick(page, "moj-line:nth-of-type(2) > moj-textbox.ng-invalid [data-cy='textbox_input']", 313, 24.34375));
     await logStep('Fill שם', () => safeFill(page, "moj-line:nth-of-type(2) > moj-textbox.ng-invalid [data-cy='textbox_input']", 'טאבו ישראל'));
-
     await logStep('Click דוא"ל', () => safeClick(page, "moj-textbox.ng-invalid [data-cy='textbox_input']", 153, 24.34375));
     await logStep('Fill דוא"ל', () => safeFill(page, "moj-textbox.ng-invalid [data-cy='textbox_input']", 'orders@tabuisrael.co.il'));
 
@@ -136,7 +136,6 @@ app.post('/run-order', async (req, res) => {
 
     if (search_type === 'address') {
       await logStep('Click איתור לפי כתובת', () => safeClick(page, '#for-searchOption9', 87.78125, 9.34375));
-      await logStep('Click איתור לפי כתובת משנה', () => safeClick(page, '#for-searchOption11', 80.4375, 10.34375));
       await logStep('Click רחוב', () => safeClick(page, "moj-line:nth-of-type(1) > moj-textbox:nth-of-type(1) [data-cy='textbox_input']", 197.328125, 25.34375));
       await logStep('Fill רחוב', () => safeFill(page, "moj-line:nth-of-type(1) > moj-textbox:nth-of-type(1) [data-cy='textbox_input']", street));
       await logStep('Click מספר בית', () => safeClick(page, "moj-line:nth-of-type(1) > moj-textbox:nth-of-type(2) [data-cy='textbox_input']", 218.65625, 30.34375));
@@ -169,9 +168,6 @@ app.post('/run-order', async (req, res) => {
       await logStep('Click הוספה', () => safeClick(page, 'div > moj-line:nth-of-type(2) span', 46.234375, 15.34375));
     } else if (search_type === 'block') {
       await logStep('Click איתור לפי גוש', () => safeClick(page, '#for-searchOption10', 80, 10));
-      await logStep('Click איתור לפי גוש/חלקה', () => safeClick(page, '#for-searchOption12', 80, 10));
-      await logStep('Click גוש', () => safeClick(page, "input[formcontrolname='block']", 40, 10));
-      await logStep('Fill גוש', () => safeFill(page, "input[formcontrolname='block']", block));
       await logStep('Click חלקה', () => safeClick(page, "input[formcontrolname='parcel']", 40, 10));
       await logStep('Fill חלקה', () => safeFill(page, "input[formcontrolname='parcel']", parcel));
       if (subparcel) {
@@ -192,7 +188,6 @@ app.post('/run-order', async (req, res) => {
     );
 
     await logStep('Set payment viewport', () => page.setViewportSize({ width: 1687, height: 495 }));
-
     await logStep('DoubleClick שם לקוח', () => safeClick(page, '#client-name', 192.5, 9.5, 9000, true));
     await logStep('Fill שם לקוח', () => safeFill(page, '#client-name', 'tabuisrael'));
     await logStep('Click אימייל', () => safeClick(page, '#client-email', 253.5, 25.5));
@@ -200,10 +195,10 @@ app.post('/run-order', async (req, res) => {
     await logStep('Click כרטיס אשראי זר', () => safeClick(page, 'div:nth-of-type(5) div:nth-of-type(2) > label', 385.7421875, 9.5));
     await logStep('Click מספר כרטיס', () => safeClick(page, '#cardNumber', 208.5, 18.5));
     await logStep('Fill מספר כרטיס', () => safeFill(page, '#cardNumber', CARD_NUM));
-    await logStep('Click שנה', () => safeClick(page, '#years', 62.5, 13.5));
-    await logStep('Fill שנה', () => safeFill(page, '#years', '20' + CARD_DATE.slice(2, 4)));
     await logStep('Click חודש', () => safeClick(page, 'div:nth-of-type(2) > select', 67.5, 27.5));
     await logStep('Fill חודש', () => safeFill(page, 'div:nth-of-type(2) > select', CARD_DATE.slice(0, 2)));
+    await logStep('Click שנה', () => safeClick(page, '#years', 62.5, 13.5));
+    await logStep('Fill שנה', () => safeFill(page, '#years', '20' + CARD_DATE.slice(2, 4)));
     await logStep('Click CVV', () => safeClick(page, '#card_cvvNumber', 233.5, 3));
     await logStep('Fill CVV', () => safeFill(page, '#card_cvvNumber', CARD_CVV));
     await logStep('Click תנאי שימוש', () => safeClick(page, '#eula', 6.5, 6));
