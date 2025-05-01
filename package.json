@@ -1,6 +1,7 @@
 {
   "name": "tabu-bot",
   "version": "1.0.0",
+  "type": "module",
   "description": "Tabu Israel Automation Bot",
   "main": "bot.js",
   "scripts": {
