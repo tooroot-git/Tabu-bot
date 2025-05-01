@@ -83,15 +83,31 @@ app.post('/run-order', async (req, res) => {
   try {
     browser = await chromium.launch({
       headless: true,
-      proxy: PROXY_SERVER ? { server: PROXY_SERVER } : undefined
+      proxy: PROXY_SERVER ? { server: PROXY_SERVER } : undefined,
+      args: [
+        '--disable-blink-features=AutomationControlled'
+      ]
     });
-    const context = await browser.newContext();
+    const context = await browser.newContext({
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+      ignoreHTTPSErrors: true // כמו -k ב-curl
+    });
     const page = await context.newPage();
+
+    // לוגים של שגיאות רשת/קונסול
+    page.on('console', msg => console.log('[PAGE CONSOLE]', msg.text()));
+    page.on('requestfailed', req => console.log('[REQUEST FAILED]', req.url(), req.failure()));
 
     await logStep('Setting viewport', () => page.setViewportSize({ width: 3374, height: 770 }));
 
     await logStep('Navigating to main site', () =>
-      page.goto('https://mekarkein-online.justice.gov.il/voucher/main', { waitUntil: 'domcontentloaded', timeout: 30000 })
+      page.goto('https://mekarkein-online.justice.gov.il/voucher/main', {
+        waitUntil: 'domcontentloaded',
+        timeout: 60000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
+        }
+      })
     );
 
     // בחירת flip-card לפי סוג שירות
