@@ -1,15 +1,16 @@
 // קובץ: bot.js
 
+import express from 'express';
 import { chromium } from 'playwright';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
-import express from 'express';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+const PORT = process.env.PORT || 3000;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -39,7 +40,10 @@ app.post('/run-order', async (req, res) => {
   const page = await browser.newPage();
 
   try {
-    await page.goto('https://mekarkein-online.justice.gov.il/voucher/main', { waitUntil: 'domcontentloaded' });
+    await page.goto('https://mekarkein-online.justice.gov.il/voucher/main', {
+      waitUntil: 'domcontentloaded',
+      timeout: 60000,
+    });
 
     await page.click('text=בואו נתחיל');
     await page.click('text=נסח טאבו');
@@ -68,7 +72,6 @@ app.post('/run-order', async (req, res) => {
 
     await page.click('text=איתור');
     await page.waitForTimeout(3000);
-
     await page.click('text=אישור');
     await page.waitForTimeout(2000);
 
@@ -79,18 +82,18 @@ app.post('/run-order', async (req, res) => {
     await page.waitForTimeout(3000);
 
     await fillCreditCard(page);
-
     await page.click('text=לתשלום');
-
     await page.waitForTimeout(10000);
 
     const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
-
     await browser.close();
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('fulfilled-orders')
-      .upload(`orders/${user_id}_${Date.now()}.pdf`, pdfBuffer, { contentType: 'application/pdf', upsert: true });
+      .upload(`orders/${user_id}_${Date.now()}.pdf`, pdfBuffer, {
+        contentType: 'application/pdf',
+        upsert: true,
+      });
 
     if (uploadError) throw new Error('Failed to upload document');
 
@@ -126,6 +129,6 @@ app.post('/run-order', async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log('Automation Bot running on port 3000');
+app.listen(PORT, () => {
+  console.log(`Automation Bot running on port ${PORT}`);
 });
