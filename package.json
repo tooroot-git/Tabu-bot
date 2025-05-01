@@ -1,10 +1,11 @@
 {
   "name": "tabu-bot",
   "version": "1.0.0",
-  "type": "module",
   "description": "Tabu Israel Automation Bot",
+  "type": "module",
   "main": "bot.js",
   "scripts": {
+    "postinstall": "npx playwright install --with-deps",
     "start": "node bot.js"
   },
   "dependencies": {
