@@ -5,6 +5,7 @@
   "type": "module",
   "main": "bot.js",
   "scripts": {
+    "postinstall": "node node_modules/puppeteer/install.js",
     "start": "node bot.js"
   },
   "dependencies": {
