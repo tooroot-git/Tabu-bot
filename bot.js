@@ -83,13 +83,13 @@ app.post('/run-order', async (req, res) => {
   try {
     browser = await chromium.launch({
       headless: true,
-      proxy: PROXY_SERVER ? { server: PROXY_SERVER } : undefined,
       args: [
         '--disable-blink-features=AutomationControlled'
       ]
     });
 
     const context = await browser.newContext({
+      proxy: PROXY_SERVER ? { server: PROXY_SERVER } : undefined,
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
       ignoreHTTPSErrors: true
     });
