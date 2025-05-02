@@ -81,6 +81,7 @@ app.post('/run-order', async (req, res) => {
 
   let browser;
   try {
+    // נסה קודם כל בלי proxy בכלל (לוקאלי/שרת רגיל)
     browser = await chromium.launch({
       headless: true,
       args: [
@@ -88,18 +89,25 @@ app.post('/run-order', async (req, res) => {
       ]
     });
 
+    // אם יש פרוקסי, הגדר אותו ב-context (ולא ב-launch)
     const context = await browser.newContext({
-      proxy: PROXY_SERVER ? { server: PROXY_SERVER } : undefined,
+      ...(PROXY_SERVER ? { proxy: { server: PROXY_SERVER } } : {}),
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
       ignoreHTTPSErrors: true
     });
+
     const page = await context.newPage();
 
     // לוגים של שגיאות רשת/קונסול
     page.on('console', msg => console.log('[PAGE CONSOLE]', msg.text()));
     page.on('requestfailed', req => console.log('[REQUEST FAILED]', req.url(), req.failure()));
+    page.on('response', resp => {
+      if (resp.status() >= 400) {
+        console.log('[RESPONSE]', resp.url(), resp.status());
+      }
+    });
 
-    await logStep('Setting viewport', () => page.setViewportSize({ width: 3374, height: 770 }));
+    await logStep('Setting viewport', () => page.setViewportSize({ width: 1200, height: 900 }));
 
     await logStep('Navigating to main site', () =>
       page.goto('https://mekarkein-online.justice.gov.il/voucher/main', {
@@ -209,7 +217,7 @@ app.post('/run-order', async (req, res) => {
     );
 
     await browser.close();
-    res.json({ success: true, message: 'Order completed up to payment (hardened, all flows)' });
+    res.json({ success: true, message: 'Order completed up to payment (proxy-context, hardened)' });
   } catch (err) {
     if (browser) await browser.close();
     console.error('[TABU-BOT ERROR]', err);
